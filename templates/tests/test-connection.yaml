@@ -1,15 +1,17 @@
+!yamlscript/v0/
+
 apiVersion: v1
 kind: Pod
 metadata:
-  name: "{{ include "ys-test-chart.fullname" . }}-test-connection"
-  labels:
-    {{- include "ys-test-chart.labels" . | nindent 4 }}
+  name:: "$chart-fullname()-test-connection"
+  labels:: common-labels()
   annotations:
-    "helm.sh/hook": test
+    helm.sh/hook: test
 spec:
   containers:
-    - name: wget
-      image: busybox
-      command: ['wget']
-      args: ['{{ include "ys-test-chart.fullname" . }}:{{ .Values.service.port }}']
+  - name: wget
+    image: busybox
+    command: ['wget']
+    args:
+    - ! "$chart-fullname():$(Values.service.port)"
   restartPolicy: Never

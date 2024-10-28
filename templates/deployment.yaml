@@ -1,68 +1,53 @@
+--- !yamlscript/v0/
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "ys-test-chart.fullname" . }}
-  labels:
-    {{- include "ys-test-chart.labels" . | nindent 4 }}
+  name:: chart-fullname()
+  labels:: common-labels()
 spec:
-  {{- if not .Values.autoscaling.enabled }}
-  replicas: {{ .Values.replicaCount }}
-  {{- end }}
+  ::
+    when-not Values.autoscaling.enabled.?::
+      replicas:: Values.replicaCount
   selector:
-    matchLabels:
-      {{- include "ys-test-chart.selectorLabels" . | nindent 6 }}
+    matchLabels:: selectorLabels()
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
-      annotations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      labels:
-        {{- include "ys-test-chart.labels" . | nindent 8 }}
-        {{- with .Values.podLabels }}
-        {{- toYaml . | nindent 8 }}
-        {{- end }}
+      ::
+        when Values.podAnnotations.?::
+          annotations:: Values.podAnnotations
+      labels:: common-labels()
     spec:
-      {{- with .Values.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      serviceAccountName: {{ include "ys-test-chart.serviceAccountName" . }}
-      securityContext:
-        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      ::
+        when Values.imagePullSecrets.?::
+          imagePullSecrets:: Values.imagePullSecrets
+      serviceAccountName:: serviceAccountName()
+      securityContext:: Values.podSecurityContext
       containers:
-        - name: {{ .Chart.Name }}
-          securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          ports:
-            - name: http
-              containerPort: {{ .Values.service.port }}
-              protocol: TCP
-          livenessProbe:
-            {{- toYaml .Values.livenessProbe | nindent 12 }}
-          readinessProbe:
-            {{- toYaml .Values.readinessProbe | nindent 12 }}
-          resources:
-            {{- toYaml .Values.resources | nindent 12 }}
-          {{- with .Values.volumeMounts }}
-          volumeMounts:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-      {{- with .Values.volumes }}
-      volumes:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.affinity }}
-      affinity:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.tolerations }}
-      tolerations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+      - name:: Chart.name
+        securityContext:: Values.securityContext
+        image:: "$(Values.image.repository):\
+                 $(Values.image.tag ||| Chart.appVersion)"
+        imagePullPolicy:: Values.image.pullPolicy
+        ports:
+        - name: http
+          containerPort:: Values.service.port
+          protocol: TCP
+        livenessProbe:: Values.livenessProbe
+        readinessProbe:: Values.readinessProbe
+        resources:: Values.resources
+        ::
+          when Values.volumeMounts.?::
+            volumeMounts:: Values.volumeMounts
+      ::
+        when Values.volumes.?::
+          volumes:: Values.volumes
+      ::
+        when Values.nodeSelector.?::
+          nodeSelector:: Values.nodeSelector
+      ::
+        when Values.affinity.?::
+          affinity:: Values.affinity
+      ::
+        when Values.tolerations.?::
+          tolerations:: Values.tolerations
