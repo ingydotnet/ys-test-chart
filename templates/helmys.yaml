@@ -1,0 +1,3 @@
+HELMYS: true
+Name: {{ default .Release.Name }}
+Service: Helm
